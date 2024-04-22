@@ -20,7 +20,7 @@ class PerformerEncoder:
         self.patch_height, self.patch_width = patch_size
         self.linear_embedding_dim = linear_embedding_dim
         self.performer_params = performer_params if performer_params is not None else {
-            'dim': 10,
+            'dim': 16,
             'depth': 2,
             'heads': 8,
             'dim_head': 32
@@ -49,7 +49,7 @@ class PerformerEncoder:
 
         return (height // self.patch_height) * (width // self.patch_width)
 
-    def _get_patches(self, image, channels, num_patches):
+    def _get_patches(self, image, channels):
         """Unfold the image into patches
 
         :param image: one image
@@ -58,8 +58,8 @@ class PerformerEncoder:
         :return: patches
         """
         patches = image.unfold(1, self.patch_height, self.patch_height).unfold(2, self.patch_width, self.patch_width)
-        patches = patches.contiguous().view(channels, num_patches, self.patch_height * self.patch_width)
-        patches = patches.permute(1, 0, 2).reshape(num_patches, -1)
+        patches = patches.contiguous().view(channels, self.num_patches, self.patch_height * self.patch_width)
+        patches = patches.permute(1, 0, 2).reshape(self.num_patches, -1)
         return patches
 
     def _linear_embedding(self, batch_images):
@@ -76,7 +76,7 @@ class PerformerEncoder:
         embeddings = []
         for img in batch_images:
             # Unfold the image into patches
-            patches = self._get_patches(img, channels, num_patches)
+            patches = self._get_patches(img, channels)
             # Linearly embed the patches
             embedded_patches = self.linear_embedding(patches)
             embeddings.append(embedded_patches)
@@ -101,7 +101,7 @@ class PerformerEncoder:
 
 
 if __name__ == '__main__':
-    data = load_data()
+    data = load_data('cifar')
     data_loader = DataLoader(data['cifar'][0], batch_size=32, shuffle=True)
     encoder = PerformerEncoder(dataset_name='cifar')
     for batch, _ in data_loader:
