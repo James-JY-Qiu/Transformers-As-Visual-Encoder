@@ -18,11 +18,12 @@ class PerformerEncoder:
         self.dataset_name = dataset_name
         # ================ Parameters ================
         self.patch_height, self.patch_width = patch_size
+        self.linear_embedding_dim = linear_embedding_dim
         self.performer_params = performer_params if performer_params is not None else {
-            'dim': linear_embedding_dim,
-            'depth': 12,
+            'dim': 10,
+            'depth': 2,
             'heads': 8,
-            'dim_head': 64
+            'dim_head': 32
         }
         self.dtype = dtype
         # ================ Model ================
@@ -32,8 +33,8 @@ class PerformerEncoder:
         linear_in_features = patch_size[0] * patch_size[1] * (3 if dataset_name == 'cifar' else 1)
         self.linear_embedding = torch.nn.Linear(in_features=linear_in_features, out_features=linear_embedding_dim)
         # Positional encoding
-        num_patches = self._check_patch_size()
-        self.positional_embedding = torch.nn.Parameter(torch.zeros(num_patches, linear_embedding_dim))
+        self.num_patches = self._check_patch_size()
+        self.positional_embedding = torch.nn.Parameter(torch.zeros(self.num_patches, linear_embedding_dim))
         torch.nn.init.uniform_(self.positional_embedding, -0.01, 0.01)
 
     def _check_patch_size(self):
