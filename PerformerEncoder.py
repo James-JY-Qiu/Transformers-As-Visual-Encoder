@@ -61,19 +61,19 @@ class PerformerEncoder:
         patches = patches.permute(1, 0, 2).reshape(num_patches, -1)
         return patches
 
-    def _linear_embedding(self, batch):
+    def _linear_embedding(self, batch_images):
         """Linearly embed the patches
 
-        :param batch: batch of images
+        :param batch_images: batch of images
         :return: embeddings
         """
-        batch_size, channels, height, width = batch.size()
+        batch_size, channels, height, width = batch_images.size()
         num_patches_height = height // self.patch_height
         num_patches_width = width // self.patch_width
         num_patches = num_patches_height * num_patches_width
 
         embeddings = []
-        for img in batch:
+        for img in batch_images:
             # Unfold the image into patches
             patches = self._get_patches(img, channels, num_patches)
             # Linearly embed the patches
@@ -84,14 +84,14 @@ class PerformerEncoder:
 
         return embeddings
 
-    def encode(self, batch):
+    def encode(self, batch_images):
         """Encode the batch of images
 
-        :param batch: batch of images
+        :param batch_images: batch of images
         :return: performer encoding
         """
         # Linearly embed the patches
-        embeddings = self._linear_embedding(batch)
+        embeddings = self._linear_embedding(batch_images)
         # Add positional encoding
         embeddings += self.positional_embedding
         # Performer encoding
@@ -104,12 +104,6 @@ if __name__ == '__main__':
     data_loader = DataLoader(data['cifar'][0], batch_size=32, shuffle=True)
     encoder = PerformerEncoder(dataset_name='cifar')
     for batch, _ in data_loader:
-        embeddings = encoder.encode(batch)
-        print(embeddings.size())
+        result = encoder.encode(batch)
+        print(result.size())
         break
-
-
-
-
-
-
