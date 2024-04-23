@@ -11,6 +11,7 @@ class PerformerEncoder:
             patch_size=(4, 4),
             linear_embedding_dim=256,
             performer_params=None,
+            device='cuda' if torch.cuda.is_available() else 'cpu',
             dtype=torch.float32
     ):
         # ================ Data ================
@@ -25,16 +26,17 @@ class PerformerEncoder:
             'heads': 8,
             'dim_head': 32
         }
+        self.device = device
         self.dtype = dtype
         # ================ Model ================
         # Initialize the performer model
-        self.performer = Performer(**self.performer_params)
+        self.performer = Performer(**self.performer_params).to(self.device)
         # Initialize the linear layer
         linear_in_features = self.patch_height * self.patch_width * (3 if dataset_name == 'cifar' else 1)
-        self.linear_embedding = torch.nn.Linear(in_features=linear_in_features, out_features=linear_embedding_dim)
+        self.linear_embedding = torch.nn.Linear(in_features=linear_in_features, out_features=linear_embedding_dim).to(self.device)
         # Positional encoding
         self.num_patches = self._check_patch_size()
-        self.positional_embedding = torch.nn.Parameter(torch.zeros(self.num_patches, linear_embedding_dim))
+        self.positional_embedding = torch.nn.Parameter(torch.zeros(self.num_patches, linear_embedding_dim)).to(self.device)
         torch.nn.init.uniform_(self.positional_embedding, -0.01, 0.01)
 
     def _check_patch_size(self):
@@ -67,6 +69,7 @@ class PerformerEncoder:
         :param batch_images: batch of images
         :return: embeddings
         """
+        batch_images = batch_images.to(self.device)
         channels = batch_images.size()[1]
 
         embeddings = []

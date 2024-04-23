@@ -17,7 +17,8 @@ def performer_classification(
         num_epochs,
         learning_rate,
         experiment_name,
-        save_path
+        save_path,
+        device='cuda' if torch.cuda.is_available() else 'cpu',
 ):
     # Data loaders
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
@@ -32,7 +33,7 @@ def performer_classification(
         input_dim=performer_encoder.linear_embedding_dim * performer_encoder.num_patches,
         output_dim=num_classes,
         **mlp_params
-    )
+    ).to(device)
 
     # Loss function and optimizer
     criterion = torch.nn.CrossEntropyLoss()
@@ -56,6 +57,9 @@ def performer_classification(
         correct = 0
         total = 0
         for batch_idx, (data, targets) in enumerate(train_loader):
+            # to device
+            data, targets = data.to(device), targets.to(device)
+            # Zero the parameter gradients
             optimizer.zero_grad()
             # Encode batch
             encoded_data = performer_encoder.encode(data)
@@ -90,6 +94,8 @@ def performer_classification(
     total = 0
     with torch.no_grad():
         for data, targets in test_loader:
+            # to device
+            data, targets = data.to(device), targets.to(device)
             # Encode batch
             encoded_data = performer_encoder.encode(data)
             # Flatten encoded data
