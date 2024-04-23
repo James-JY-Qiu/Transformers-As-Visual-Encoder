@@ -93,19 +93,23 @@ class Attention(nn.Module):
         dropout=0.,
         no_projection=False,
         qkv_bias=False,
-        attn_out_bias=True
+        attn_out_bias=True,
+        use_standard_transformer=False
     ):
         super().__init__()
         assert dim % heads == 0, 'dimension must be divisible by number of heads'
         dim_head = default(dim_head, dim // heads)
         inner_dim = dim_head * heads
-        self.fast_attention = FastAttention(
-            dim_head,
-            nb_features,
-            generalized_attention=generalized_attention,
-            kernel_fn=kernel_fn,
-            no_projection=no_projection
-        )
+        self.dim_head = dim_head
+        self.use_standard_transformer = use_standard_transformer
+        if not use_standard_transformer:
+            self.fast_attention = FastAttention(
+                dim_head,
+                nb_features,
+                generalized_attention=generalized_attention,
+                kernel_fn=kernel_fn,
+                no_projection=no_projection
+            )
 
         self.heads = heads
         self.global_heads = heads - local_heads
@@ -133,15 +137,26 @@ class Attention(nn.Module):
         attn_outs = []
 
         if not empty(q):
-            if exists(context_mask):
-                global_mask = context_mask[:, None, :, None]
-                v.masked_fill_(~global_mask, 0.)
+            if self.use_standard_transformer:
+                scale = self.dim_head ** -0.5
+                q = q * scale
+                attn_scores = torch.einsum('b h i d, b h j d -> b h i j', q, k)
+                if exists(mask):
+                    mask = mask[:, None, None, :]
+                    attn_scores = attn_scores.masked_fill(mask == 0, float('-inf'))
+                attn_probs = torch.softmax(attn_scores, dim=-1)
+                out = torch.einsum('b h i j, b h j d -> b h i d', attn_probs, v)
+                attn_outs.append(out)
+            else:
+                if exists(context_mask):
+                    global_mask = context_mask[:, None, :, None]
+                    v.masked_fill_(~global_mask, 0.)
 
-            if exists(pos_emb) and not cross_attend:
-                q, k = apply_rotary_pos_emb(q, k, pos_emb)
+                if exists(pos_emb) and not cross_attend:
+                    q, k = apply_rotary_pos_emb(q, k, pos_emb)
 
-            out = self.fast_attention(q, k, v)
-            attn_outs.append(out)
+                out = self.fast_attention(q, k, v)
+                attn_outs.append(out)
 
         if not empty(lq):
             assert not cross_attend, 'local attention is not compatible with cross attention'

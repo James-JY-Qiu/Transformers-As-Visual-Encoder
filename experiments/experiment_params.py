@@ -13,6 +13,7 @@ MNIST_PERFORMER_RELU = {
         'ff_dropout': 0.1,
         'generalized_attention': True,
         'kernel_fn': nn.ReLU(),
+        'use_standard_transformer': True
     },
     'mlp_params': {
         'hidden_dim': 3072,

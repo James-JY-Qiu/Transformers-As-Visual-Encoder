@@ -123,7 +123,8 @@ class Performer(nn.Module):
         auto_check_redraw = True,
         qkv_bias = True,
         attn_out_bias = True,
-        shift_tokens = False
+        shift_tokens = False,
+        use_standard_transformer = False
     ):
         super().__init__()
         layers = nn.ModuleList([])
@@ -156,7 +157,8 @@ class Performer(nn.Module):
                 dropout=attn_dropout,
                 no_projection=no_projection,
                 qkv_bias=qkv_bias,
-                attn_out_bias=attn_out_bias
+                attn_out_bias=attn_out_bias,
+                use_standard_transformer=use_standard_transformer
             )
             ff = Chunk(ff_chunks, FeedForward(dim, mult = ff_mult, dropout = ff_dropout, glu = ff_glu), along_dim = 1)
 
