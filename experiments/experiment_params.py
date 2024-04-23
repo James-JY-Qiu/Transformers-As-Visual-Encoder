@@ -23,18 +23,18 @@ MNIST_PERFORMER_RELU = {
 CIFAR_PERFORMER_RELU = {
     'dataset_name': 'cifar',
     'patch_size': (4, 4),
-    'linear_embedding_dim': 32,
+    'linear_embedding_dim': 96,
     'performer_params': {
-        'dim': 32,
-        'depth': 8,
-        'heads': 4,
-        'dim_head': 16,
+        'dim': 96,
+        'depth': 4,
+        'heads': 8,
+        'dim_head': 32,
         'ff_dropout': 0.1,
         'generalized_attention': True,
         'kernel_fn': nn.ReLU(),
     },
     'mlp_params': {
-        'hidden_dim': 3072,
+        'hidden_dim': 12288,
         'dropout_rate': 0.1
     }
 }
