@@ -54,7 +54,6 @@ class PerformerEncoder:
 
         :param image: one image
         :param channels: number of channels
-        :param num_patches: number of patches
         :return: patches
         """
         patches = image.unfold(1, self.patch_height, self.patch_height).unfold(2, self.patch_width, self.patch_width)
@@ -68,10 +67,7 @@ class PerformerEncoder:
         :param batch_images: batch of images
         :return: embeddings
         """
-        batch_size, channels, height, width = batch_images.size()
-        num_patches_height = height // self.patch_height
-        num_patches_width = width // self.patch_width
-        num_patches = num_patches_height * num_patches_width
+        channels = batch_images.size()[1]
 
         embeddings = []
         for img in batch_images:
