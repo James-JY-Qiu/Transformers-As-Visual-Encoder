@@ -1,4 +1,4 @@
-from experiments.performer_experiments import run_performer_experiment
+from experiments.run_experiments import run_performer_experiment
 from experiments.experiment_params import MNIST_PERFORMER_RELU, CIFAR_PERFORMER_RELU
 
 
