@@ -30,7 +30,7 @@ class PerformerEncoder:
         # Initialize the performer model
         self.performer = Performer(**self.performer_params)
         # Initialize the linear layer
-        linear_in_features = patch_size[0] * patch_size[1] * (3 if dataset_name == 'cifar' else 1)
+        linear_in_features = self.patch_height * self.patch_width * (3 if dataset_name == 'cifar' else 1)
         self.linear_embedding = torch.nn.Linear(in_features=linear_in_features, out_features=linear_embedding_dim)
         # Positional encoding
         self.num_patches = self._check_patch_size()
