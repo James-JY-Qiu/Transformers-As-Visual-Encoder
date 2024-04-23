@@ -4,9 +4,9 @@ from torch import nn
 MNIST_PERFORMER_RELU = {
     'dataset_name': 'mnist',
     'patch_size': (4, 4),
-    'linear_embedding_dim': 16,
+    'linear_embedding_dim': 32,
     'performer_params': {
-        'dim': 16,
+        'dim': 32,
         'depth': 2,
         'heads': 4,
         'dim_head': 16,
@@ -23,9 +23,9 @@ MNIST_PERFORMER_RELU = {
 CIFAR_PERFORMER_RELU = {
     'dataset_name': 'cifar',
     'patch_size': (4, 4),
-    'linear_embedding_dim': 48,
+    'linear_embedding_dim': 256,
     'performer_params': {
-        'dim': 48,
+        'dim': 256,
         'depth': 2,
         'heads': 4,
         'dim_head': 16,
