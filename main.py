@@ -7,8 +7,8 @@ if __name__ == '__main__':
     for r in range(repeat):
         print(f'Running Performer ReLU experiment {r}')
         run_performer_experiment(
-            task='mnist',
-            performer_encoder_params=MNIST_PERFORMER_RELU,
+            task='cifar',
+            performer_encoder_params=CIFAR_PERFORMER_RELU,
             learning_rate=1e-3,
             experiment_name=f'MNIST_PERFORMER_RELU_{r}',
             save_path='results'
