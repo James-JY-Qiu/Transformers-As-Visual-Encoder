@@ -61,8 +61,6 @@ def performer_classification(
             encoded_data = performer_encoder.encode(data)
             # Flatten encoded data
             encoded_data_flat = encoded_data.view(encoded_data.size(0), -1)
-            # Max Pooling
-            # encoded_data_flat = torch.max(encoded_data, dim=1)[0]
             # Classify encoded data
             outputs = classifier(encoded_data_flat)
             # Calculate loss
