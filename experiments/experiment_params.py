@@ -96,3 +96,8 @@ CIFAR_PERFORMER_LOCAL_ATTN_16 = deepcopy(CIFAR_PERFORMER)
 CIFAR_PERFORMER_LOCAL_ATTN_16['performer_params']['use_standard_transformer'] = True
 CIFAR_PERFORMER_LOCAL_ATTN_16['performer_params']['local_attn_heads'] = 4
 CIFAR_PERFORMER_LOCAL_ATTN_16['performer_params']['local_window_size'] = 16
+
+CIFAR_PERFORMER_LOCAL_ATTN_32 = deepcopy(CIFAR_PERFORMER)
+CIFAR_PERFORMER_LOCAL_ATTN_32['performer_params']['use_standard_transformer'] = True
+CIFAR_PERFORMER_LOCAL_ATTN_32['performer_params']['local_attn_heads'] = 4
+CIFAR_PERFORMER_LOCAL_ATTN_32['performer_params']['local_window_size'] = 32
