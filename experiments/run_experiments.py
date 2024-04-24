@@ -1,4 +1,5 @@
 import time
+from copy import deepcopy
 
 import torch
 from torch.utils.data import DataLoader
@@ -21,11 +22,26 @@ def performer_classification(
         save_path,
         device='cuda' if torch.cuda.is_available() else 'cpu',
 ):
+    """Perform classification using Performer encoder
+
+    :param task: Task name
+    :param train_data: Training data
+    :param test_data: Testing data
+    :param performer_encoder_params: Parameters for the Performer encoder
+    :param num_classes: Number of classes
+    :param batch_size: Batch size
+    :param num_epochs: Number of epochs
+    :param learning_rate: Learning rate
+    :param experiment_name: Experiment name
+    :param save_path: Path to save the results
+    :param device: Device to run the experiment on
+    """
     # Data loaders
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
 
     # Performer encoder
+    performer_encoder_params = deepcopy(performer_encoder_params)
     mlp_params = performer_encoder_params.pop('mlp_params')
     performer_encoder = PerformerEncoder(**performer_encoder_params)
 
@@ -90,7 +106,7 @@ def performer_classification(
             correct += (predicted == targets).sum().item()
 
             if batch_idx % 100 == 0:
-                print(f'Epoch {epoch+1}/{num_epochs}, Batch {batch_idx}/{len(train_loader)}, Loss: {loss.item()}')
+                print(f'Epoch {epoch+1}/{num_epochs}, Batch {batch_idx}/{len(train_loader)}, Loss: {loss.item()}, Time: {time.time() - start_time}')
 
         epoch_loss = running_loss / len(train_loader)
         epoch_accuracy = 100 * correct / total
@@ -134,7 +150,7 @@ def performer_classification(
     save_results(training_info, experiment_name, save_path)
 
 
-def run_performer_experiment(task, performer_encoder_params, experiment_name, save_path, num_epochs=10, batch_size=64, learning_rate=1e-4):
+def run_performer_experiment(task, performer_encoder_params, experiment_name, save_path, num_epochs=10, batch_size=32, learning_rate=1e-4):
     # Load dataset
     if task == 'mnist':
         train_data, test_data = load_data('mnist')['mnist']

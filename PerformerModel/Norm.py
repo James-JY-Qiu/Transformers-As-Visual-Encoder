@@ -4,6 +4,10 @@ from torch import nn
 
 class ReZero(nn.Module):
     def __init__(self, fn):
+        """Introduce a learnable scaling parameter to modulate the output of a function.
+
+        :param fn: The function or layer
+        """
         super().__init__()
         # initialize the trainable scaling parameter
         self.g = nn.Parameter(torch.tensor(1e-3))
@@ -14,7 +18,12 @@ class ReZero(nn.Module):
 
 
 class PreScaleNorm(nn.Module):
-    def __init__(self, dim, fn, eps=1e-5):
+    def __init__(self, fn, eps=1e-5):
+        """Introduce a learnable scaling parameter to normalize the input tensor before applying the function.
+
+        :param fn: The function or layer
+        :param eps: A small number to add to the denominator for numerical stability
+        """
         super().__init__()
         self.fn = fn
         # initialize the trainable scaling parameter
@@ -31,6 +40,11 @@ class PreScaleNorm(nn.Module):
 
 class PreLayerNorm(nn.Module):
     def __init__(self, dim, fn):
+        """Introduce a layer normalization layer before applying the function.
+
+        :param dim: The feature dimension
+        :param fn: The function or layer
+        """
         super().__init__()
         # apply layer normalization to the input tensor
         self.norm = nn.LayerNorm(dim)

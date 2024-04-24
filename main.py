@@ -14,15 +14,13 @@ if __name__ == '__main__':
         (MNIST_TRANSFORMER_LOCAL_ATTN_4, 'MNIST_TRANSFORMER_LOCAL_ATTN_4'),
         (MNIST_TRANSFORMER_LOCAL_ATTN_16, 'MNIST_TRANSFORMER_LOCAL_ATTN_16')
     ]:
-        for repeat in range(10):
-            name = f'{name}_{repeat}'
-            print(f"Running {name} experiment")
-            run_performer_experiment(
-                task='mnist',
-                num_epochs=10,
-                batch_size=64,
-                learning_rate=1e-4,
-                performer_encoder_params=params,
-                experiment_name=name,
-                save_path='results'
-            )
+        print(f"Running {name} experiment")
+        run_performer_experiment(
+            task='mnist',
+            num_epochs=20,
+            batch_size=32,
+            learning_rate=1e-4,
+            performer_encoder_params=params,
+            experiment_name=name,
+            save_path='results'
+        )

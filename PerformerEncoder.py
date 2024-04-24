@@ -14,6 +14,15 @@ class PerformerEncoder:
             device='cuda' if torch.cuda.is_available() else 'cpu',
             dtype=torch.float32
     ):
+        """Initialize the Performer encoder
+
+        :param dataset_name: Name of the dataset
+        :param patch_size: Size of the patch
+        :param linear_embedding_dim: Dimension of the linear embedding
+        :param performer_params: Parameters for the Performer model
+        :param device: Device to run the model on
+        :param dtype: Data type
+        """
         # ================ Data ================
         assert dataset_name in ['mnist', 'cifar'], 'Dataset must be either "mnist" or "cifar"'
         self.dataset_name = dataset_name

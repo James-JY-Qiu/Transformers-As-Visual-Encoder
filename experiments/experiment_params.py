@@ -12,11 +12,11 @@ MNIST_PERFORMER = {
         'depth': 2,
         'heads': 4,
         'dim_head': 16,
-        'ff_dropout': 0.1,
+        'ff_dropout': 0.3,
     },
     'mlp_params': {
         'hidden_dim': 3072,
-        'dropout_rate': 0.1
+        'dropout_rate': 0.5
     }
 }
 
