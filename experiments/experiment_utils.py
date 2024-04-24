@@ -20,7 +20,5 @@ class MLP(nn.Module):
 
 
 def save_results(results, file_name, file_path):
-    dataset_name, model_name, attribute = file_name.split('_')
-    os.makedirs(os.path.join(file_path, f'{dataset_name}/{model_name}'), exist_ok=True)
-    with open(os.path.join(file_path, f'{dataset_name}/{model_name}/experiment_{attribute}.pkl'), 'wb') as f:
+    with open(os.path.join(file_path, f'{file_name}.pkl'), 'wb') as f:
         pickle.dump(results, f)

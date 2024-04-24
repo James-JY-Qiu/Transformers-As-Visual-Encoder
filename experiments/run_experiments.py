@@ -9,6 +9,7 @@ from utils import load_data
 
 
 def performer_classification(
+        task,
         train_data,
         test_data,
         performer_encoder_params,
@@ -41,6 +42,14 @@ def performer_classification(
         list(performer_encoder.performer.parameters()) + list(classifier.parameters()),
         lr=learning_rate
     )
+
+    # Initialize learning rate scheduler
+    if task == 'mnist':
+        scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda epoch: 1)
+    elif task == 'cifar':
+        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.995)
+    else:
+        raise Exception('Task should be "mnist" or "cifar"!')
 
     # Save data
     training_info = {
@@ -119,11 +128,13 @@ def performer_classification(
 
         print(f'Epoch {epoch+1}/{num_epochs}, Training Loss: {epoch_loss:.4f}, Training Accuracy: {epoch_accuracy:.2f}%, Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.2f}%')
 
+        scheduler.step()
+
     training_info['time'] = time.time() - start_time
     save_results(training_info, experiment_name, save_path)
 
 
-def run_performer_experiment(task, performer_encoder_params, experiment_name, save_path, batch_size=64, num_epochs=10, learning_rate=1e-3):
+def run_performer_experiment(task, performer_encoder_params, experiment_name, save_path, num_epochs=10, batch_size=64, learning_rate=1e-4):
     # Load dataset
     if task == 'mnist':
         train_data, test_data = load_data('mnist')['mnist']
@@ -133,7 +144,7 @@ def run_performer_experiment(task, performer_encoder_params, experiment_name, sa
         raise Exception('Task should be "mnist" or "cifar"!')
     # Performer classification
     performer_classification(
-        train_data, test_data,
+        task, train_data, test_data,
         performer_encoder_params=performer_encoder_params,
         num_classes=10,
         batch_size=batch_size,
