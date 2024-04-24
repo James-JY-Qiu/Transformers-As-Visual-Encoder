@@ -3,7 +3,7 @@ from torch import nn
 from einops import repeat
 
 
-def softmax_kernel(data, *, projection_matrix, is_query, normalize_data=True, eps=1e-4):
+def softmax_kernel(data, *, projection_matrix, is_query, normalize_data=True, eps=1e-4, device=None):
     """Apply the softmax kernel to the data
 
     :param data: The query or key tensor to be transformed
