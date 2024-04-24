@@ -15,20 +15,22 @@ if __name__ == '__main__':
         (MNIST_TRANSFORMER_LOCAL_ATTN_4, 'MNIST_TRANSFORMER_LOCAL_ATTN_4'),
         (MNIST_TRANSFORMER_LOCAL_ATTN_16, 'MNIST_TRANSFORMER_LOCAL_ATTN_16')
     ]:
-        print(f"Running {name} experiment")
-        # bypass existing results
-        if os.path.exists(f'results/{name}.pkl'):
-            print(f"Skipping {name} experiment")
-            continue
-        run_performer_experiment(
-            task='mnist',
-            num_epochs=20,
-            batch_size=32,
-            learning_rate=1e-4,
-            performer_encoder_params=params,
-            experiment_name=name,
-            save_path='results'
-        )
+        for repeat in range(10):
+            subname = name + "_" + str(repeat)
+            print(f"Running {subname} experiment")
+            # bypass existing results
+            if os.path.exists(f'results/{subname}.pkl'):
+                print(f"Skipping {subname} experiment")
+                continue
+            run_performer_experiment(
+                task='mnist',
+                num_epochs=20,
+                batch_size=32,
+                learning_rate=1e-4,
+                performer_encoder_params=params,
+                experiment_name=subname,
+                save_path='results'
+            )
 
     for params, name in [
         (CIFAR_PERFORMER_RELU, 'CIFAR_PERFORMER_RELU'),
@@ -40,17 +42,19 @@ if __name__ == '__main__':
         (CIFAR_PERFORMER_LOCAL_ATTN_16, 'CIFAR_PERFORMER_LOCAL_ATTN_16'),
         (CIFAR_PERFORMER_LOCAL_ATTN_32, 'CIFAR_PERFORMER_LOCAL_ATTN_32')
     ]:
-        print(f"Running {name} experiment")
-        # bypass existing results
-        if os.path.exists(f'results/{name}.pkl'):
-            print(f"Skipping {name} experiment")
-            continue
-        run_performer_experiment(
-            task='mnist',
-            num_epochs=200,
-            batch_size=32,
-            learning_rate=1e-4,
-            performer_encoder_params=params,
-            experiment_name=name,
-            save_path='results'
-        )
+        for repeat in range(10):
+            subname = name + "_" + str(repeat)
+            print(f"Running {subname} experiment")
+            # bypass existing results
+            if os.path.exists(f'results/{subname}.pkl'):
+                print(f"Skipping {subname} experiment")
+                continue
+            run_performer_experiment(
+                task='mnist',
+                num_epochs=200,
+                batch_size=32,
+                learning_rate=1e-4,
+                performer_encoder_params=params,
+                experiment_name=subname,
+                save_path='results'
+            )
