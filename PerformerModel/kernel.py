@@ -7,7 +7,7 @@ def softmax_kernel(data, *, projection_matrix, is_query, normalize_data=True, ep
     """Apply the softmax kernel to the data
 
     :param data: The query or key tensor to be transformed
-    :param projection_matrix: A random matrix used for projecting the input tensor to a lower-dimensional space
+    :param projection_matrix: A random matrix used for projecting the input tensor to a higher-dimensional space
     :param is_query: Flag indicating whether the input data is a query
     :param normalize_data: If True, normalizes the data by the feature dimension
     :param eps: A small number to add to the denominator for numerical stability
@@ -38,21 +38,22 @@ def softmax_kernel(data, *, projection_matrix, is_query, normalize_data=True, ep
     if is_query:
         # For queries, normalize across the last dimension
         data_dash = ratio * (
-            torch.exp(data_dash - diag_data -
-                    torch.amax(data_dash, dim=-1, keepdim=True).detach()) + eps)
+                torch.exp(data_dash - diag_data -
+                          torch.amax(data_dash, dim=-1, keepdim=True).detach()) + eps)
     else:
         # For keys, normalize across the last two dimensions
         data_dash = ratio * (
-            torch.exp(data_dash - diag_data - torch.amax(data_dash, dim=(-1, -2), keepdim=True).detach()) + eps)
+                torch.exp(data_dash - diag_data - torch.amax(data_dash, dim=(-1, -2), keepdim=True).detach()) + eps)
 
     return data_dash.type_as(data)
 
 
-def generalized_kernel(data, *, projection_matrix, kernel_fn = nn.ReLU(), kernel_epsilon = 0.001, normalize_data = True, device = None):
+def generalized_kernel(data, *, projection_matrix, kernel_fn=nn.ReLU(), kernel_epsilon=0.001, normalize_data=True,
+                       device=None):
     """Apply the generalized attention kernel to the data
 
     :param data: The query or key tensor to be transformed
-    :param projection_matrix: A random matrix used for projecting the input tensor to a lower-dimensional space
+    :param projection_matrix: A random matrix used for projecting the input tensor to a higher-dimensional space
     :param kernel_fn: The kernel function to be applied
     :param kernel_epsilon: A small number added to the kernel function
     :param normalize_data: If True, normalizes the data by the feature dimension
@@ -69,7 +70,7 @@ def generalized_kernel(data, *, projection_matrix, kernel_fn = nn.ReLU(), kernel
         # If no projection matrix is provided, apply the kernel function directly to the data
         return kernel_fn(data_normalizer * data) + kernel_epsilon
     # Repeat and cast the projection matrix to match the batch and head dimensions of the data
-    projection = repeat(projection_matrix, 'j d -> b h j d', b = b, h = h)
+    projection = repeat(projection_matrix, 'j d -> b h j d', b=b, h=h)
     projection = projection.type_as(data)
 
     # Project the normalized data into a lower-dimensional space using the projection matrix
