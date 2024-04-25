@@ -4,7 +4,7 @@ from copy import deepcopy
 import torch
 from torch.utils.data import DataLoader
 
-from PerformerEncoder import PerformerEncoder
+from PerformerImageEncoder import PerformerImageEncoder
 from experiments.experiment_utils import MLP, save_results
 from utils import load_data
 
@@ -43,7 +43,7 @@ def performer_classification(
     # Performer encoder
     performer_encoder_params = deepcopy(performer_encoder_params)
     mlp_params = performer_encoder_params.pop('mlp_params')
-    performer_encoder = PerformerEncoder(**performer_encoder_params)
+    performer_encoder = PerformerImageEncoder(**performer_encoder_params)
 
     # Classifier
     classifier = MLP(

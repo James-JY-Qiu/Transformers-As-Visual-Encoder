@@ -4,7 +4,7 @@ from utils import load_data
 from torch.utils.data import DataLoader
 
 
-class PerformerEncoder:
+class PerformerImageEncoder:
     def __init__(
             self,
             dataset_name,
@@ -111,7 +111,7 @@ class PerformerEncoder:
 if __name__ == '__main__':
     data = load_data('cifar')
     data_loader = DataLoader(data['cifar'][0], batch_size=32, shuffle=True)
-    encoder = PerformerEncoder(dataset_name='cifar')
+    encoder = PerformerImageEncoder(dataset_name='cifar')
     for batch, _ in data_loader:
         result = encoder.encode(batch)
         print(result.size())
