@@ -38,17 +38,17 @@ if __name__ == '__main__':
         (CIFAR_PERFORMER_APPROXIMATION_32, 'CIFAR_PERFORMER_APPROXIMATION_32'),
         (CIFAR_PERFORMER_APPROXIMATION_64, 'CIFAR_PERFORMER_APPROXIMATION_64'),
         (CIFAR_PERFORMER_APPROXIMATION_128, 'CIFAR_PERFORMER_APPROXIMATION_128'),
-        (CIFAR_PERFORMER_LOCAL_ATTN_4, 'CIFAR_PERFORMER_LOCAL_ATTN_4'),
-        (CIFAR_PERFORMER_LOCAL_ATTN_16, 'CIFAR_PERFORMER_LOCAL_ATTN_16'),
-        (CIFAR_PERFORMER_LOCAL_ATTN_32, 'CIFAR_PERFORMER_LOCAL_ATTN_32')
+        (CIFAR_PERFORMER_LOCAL_ATTN_4, 'CIFAR_TRANSFORMER_LOCAL_ATTN_4'),
+        (CIFAR_PERFORMER_LOCAL_ATTN_16, 'CIFAR_TRANSFORMER_LOCAL_ATTN_16'),
+        (CIFAR_PERFORMER_LOCAL_ATTN_32, 'CIFAR_TRANSFORMER_LOCAL_ATTN_32')
     ]:
         for repeat in range(10):
             subname = name + "_" + str(repeat)
             print(f"Running {subname} experiment")
             # bypass existing results
-            if os.path.exists(f'results/{subname}.pkl'):
-                print(f"Skipping {subname} experiment")
-                continue
+            # if os.path.exists(f'results/{subname}.pkl'):
+            #     print(f"Skipping {subname} experiment")
+            #     continue
             run_performer_experiment(
                 task='cifar',
                 num_epochs=30,

@@ -1,3 +1,6 @@
+import pickle
+from collections import defaultdict
+
 import torchvision
 import torchvision.transforms as transforms
 
@@ -31,6 +34,30 @@ def load_data(data_names):
 
     return datasets
 
-if __name__ == '__main__':
-    result = load_data()
-    print(result)
+
+def load_result(result_name):
+    with open(f'results/{result_name}.pkl', 'rb') as f:
+        return pickle.load(f)
+
+
+def load_all_results():
+    task = ['MNIST', 'CIFAR']
+    models = ['PERFORMER_RELU', 'PERFORMER_APPROXIMATION_16', 'PERFORMER_APPROXIMATION_32', 'PERFORMER_APPROXIMATION_64',
+              'PERFORMER_APPROXIMATION_128', 'TRANSFORMER_LOCAL_ATTN_4', 'TRANSFORMER_LOCAL_ATTN_16', 'TRANSFORMER_LOCAL_ATTN_32']
+    results = {}
+
+    for t in task:
+        for m in models:
+            name = f'{t}_{m}'
+            results[name] = {}
+            for i in range(10):
+                result_name = f'{t}_{m}_{i}'
+                try:
+                    if t == 'MNIST' and m == 'TRANSFORMER_LOCAL_ATTN_32':
+                        continue
+                    result = load_result(result_name)
+                    results[name][f'instance_{i}'] = result
+                except FileNotFoundError:
+                    continue
+
+    return results

@@ -2,7 +2,7 @@ import time
 from copy import deepcopy
 
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 
 from PerformerImageEncoder import PerformerImageEncoder
 from experiments.experiment_utils import MLP, save_results
@@ -36,8 +36,14 @@ def performer_classification(
     :param save_path: Path to save the results
     :param device: Device to run the experiment on
     """
+    num_train = len(train_data)
+    split = int(num_train * 0.9)  # 90% of data for training
+    lengths = [split, num_train - split]
+    train_subset, val_subset = random_split(train_data, lengths)
+
     # Data loaders
-    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_subset, batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
 
     # Performer encoder
@@ -71,8 +77,10 @@ def performer_classification(
     training_info = {
         'train_losses': [],
         'train_accuracies': [],
+        'val_losses': [],
+        'val_accuracies': [],
         'test_losses': [],
-        'test_accuracies': [],
+        'test_accuracies': []
     }
     start_time = time.time()
 
@@ -109,20 +117,22 @@ def performer_classification(
                 print(f'Epoch {epoch+1}/{num_epochs}, Batch {batch_idx}/{len(train_loader)}, Loss: {loss.item()}, Time: {time.time() - start_time}')
 
         epoch_loss = running_loss / len(train_loader)
-        epoch_accuracy = 100 * correct / total
+        epoch_accuracy = round(100 * correct / total, 2)
         training_info['train_losses'].append(epoch_loss)
         training_info['train_accuracies'].append(epoch_accuracy)
 
-        # Evaluation on test set
+        # Evaluation on validation set
         performer_encoder.performer.eval()
         classifier.eval()
-        running_loss = 0
-        correct = 0
-        total = 0
+        val_loss = 0
+        val_correct = 0
+        val_total = 0
         with torch.no_grad():
-            for data, targets in test_loader:
+            for data, targets in val_loader:
                 # to device
                 data, targets = data.to(device), targets.to(device)
+                # Zero the parameter gradients
+                optimizer.zero_grad()
                 # Encode batch
                 encoded_data = performer_encoder.encode(data)
                 # Flatten encoded data
@@ -131,18 +141,52 @@ def performer_classification(
                 outputs = classifier(encoded_data_flat)
                 # Calculate loss
                 loss = criterion(outputs, targets)
-                # Calculate accuracy
-                _, predicted = torch.max(outputs, 1)
-                total += targets.size(0)
-                correct += (predicted == targets).sum().item()
-                running_loss += loss.item()
 
-        test_loss = running_loss / len(test_loader)
-        test_accuracy = 100 * correct / total
+                val_loss += loss.item()
+                _, predicted = torch.max(outputs, 1)
+                val_total += targets.size(0)
+                val_correct += (predicted == targets).sum().item()
+
+        # Calculate validation loss and accuracy
+        val_loss = val_loss / len(val_loader)
+        val_accuracy = round(100 * val_correct / val_total, 2)
+        training_info['val_losses'].append(val_loss)
+        training_info['val_accuracies'].append(val_accuracy)
+
+        test_loss = 0
+        test_correct = 0
+        test_total = 0
+        with torch.no_grad():
+            for data, targets in test_loader:
+                # to device
+                data, targets = data.to(device), targets.to(device)
+                # Zero the parameter gradients
+                optimizer.zero_grad()
+                # Encode batch
+                encoded_data = performer_encoder.encode(data)
+                # Flatten encoded data
+                encoded_data_flat = encoded_data.view(encoded_data.size(0), -1)
+                # Classify encoded data
+                outputs = classifier(encoded_data_flat)
+                # Calculate loss
+                loss = criterion(outputs, targets)
+
+                test_loss += loss.item()
+                _, predicted = torch.max(outputs, 1)
+                test_total += targets.size(0)
+                test_correct += (predicted == targets).sum().item()
+
+        # Calculate test loss and accuracy
+        test_loss = test_loss / len(test_loader)
+        test_accuracy = round(100 * test_correct / test_total, 2)
         training_info['test_losses'].append(test_loss)
         training_info['test_accuracies'].append(test_accuracy)
 
-        print(f'Epoch {epoch+1}/{num_epochs}, Training Loss: {epoch_loss:.4f}, Training Accuracy: {epoch_accuracy:.2f}%, Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.2f}%')
+        print(
+            f'Epoch {epoch + 1}/{num_epochs}, Training Loss: {epoch_loss:.4f}, Training Accuracy: {epoch_accuracy:.2f}%, '
+            f'Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.2f}%, '
+            f'Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.2f}%'
+        )
 
         scheduler.step()
 
